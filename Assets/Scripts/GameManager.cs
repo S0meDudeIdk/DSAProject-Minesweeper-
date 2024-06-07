@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Mathematics;
+using System.Linq;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
     [SerializeField] private Transform tilePrefab;
     [SerializeField] private Transform gameHolder;
+
+    private List<Tile> tiles = new();
 
     private int width;
     private int height;
@@ -18,6 +20,7 @@ public class GameManager : MonoBehaviour {
         CreateGameBoard(9, 9, 10);                  // Beginner
         // CreateGameBoard (16, 16, 40);            // Intermidiate
         // CreateGameBoard (30, 16, 99);            // Expert
+        ResetGameState();
     }
 
     public void CreateGameBoard(int width, int height, int numMines) {
@@ -37,7 +40,72 @@ public class GameManager : MonoBehaviour {
                 float yIndex = row - ((height - 1) / 2.0f);
                 tileTransform.localPosition = new Vector2(xIndex * tileSize,
                                                             yIndex * tileSize);
+
+                // Keep referencing to the tile for setting up the game
+                Tile tile = tileTransform.GetComponent<Tile>();
+                tiles.Add(tile);
             }
         }
+    }
+
+    private void ResetGameState() {
+        // Suffle tiles' position for the mine
+        int[] minePositions = Enumerable.Range(0, tiles.Count)
+                                        .OrderBy(x => Random.Range(0.0f, 1.0f))
+                                        .ToArray();
+
+        // Set mines at the first numMines positions
+        for (int i = 0; i < numMines; i++) {
+            int pos = minePositions[i];
+            tiles[pos].isMine = true;
+        }
+
+        // Update all the tiles to hold the correct number of mines
+        for (int i = 0; i < tiles.Count; i++) {
+            tiles[i].mineCount = HowManyMines(i);
+        }
+    }
+
+    private int HowManyMines(int location) {
+        int count = 0;
+        foreach (int pos in GetNeighbors(location)) {
+            if (tiles[pos].isMine) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    // Given a position, return the positions of all neighbors
+    private List<int> GetNeighbors(int pos) {
+        List<int> neighbors = new();
+        int row = pos / width;
+        int col = pos % width;
+        // First position (0,0) is bottom left
+        if (row < (height - 1)) {
+            neighbors.Add(pos + width);             // North
+            if (col > 0) {
+                neighbors.Add(pos + width - 1);     // North West
+            }
+            if (col < (width - 1)) {
+                neighbors.Add(pos + width + 1);     // North East
+            }
+        }
+        if (col > 0) {
+            neighbors.Add(pos - 1); // West
+        }
+        if (col < (width - 1)) {
+            neighbors.Add(pos + 1); // East
+        }
+        if (row > 0) {
+            neighbors.Add(pos - width); // South
+            if (col > 0) {
+                neighbors.Add(pos - width - 1); // South-West
+            }
+            if (col < (width - 1)) {
+                neighbors.Add(pos - width + 1); // South-East
+            }
+        }
+        return neighbors;
     }
 }
