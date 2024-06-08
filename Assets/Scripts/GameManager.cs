@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour {
                 // Keep referencing to the tile for setting up the game
                 Tile tile = tileTransform.GetComponent<Tile>();
                 tiles.Add(tile);
+                tile.gameManager = this;
             }
         }
     }
@@ -107,5 +108,12 @@ public class GameManager : MonoBehaviour {
             }
         }
         return neighbors;
+    }
+
+    public void ClickNeighbours(Tile tile) {
+        int location = tiles.IndexOf(tile);
+        foreach (int pos in GetNeighbors(location)) {
+            tiles[pos].ClickedTile();
+        }
     }
 }

@@ -12,6 +12,9 @@ public class Tile : MonoBehaviour {
     [SerializeField] private Sprite mineWrongTile;
     [SerializeField] private Sprite mineHitTile;
 
+    [Header("GM set via code")]
+    public GameManager gameManager;
+
     private SpriteRenderer spriteRenderer;
     public bool flagged = false;
     public bool active = true;
@@ -52,6 +55,10 @@ public class Tile : MonoBehaviour {
             } else {
                 // Safe click, set the correct sprite
                 spriteRenderer.sprite = clickedTile[mineCount];
+                if (mineCount == 0) {
+                    // Register that the click should expand out to the neighbours.
+                    gameManager.ClickNeighbours(this);
+                }
             }
         }
     }
