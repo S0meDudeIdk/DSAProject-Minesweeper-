@@ -116,4 +116,29 @@ public class GameManager : MonoBehaviour {
             tiles[pos].ClickedTile();
         }
     }
+
+    public void GameOver() {
+        // Disable clicks
+        foreach (Tile tile in tiles) {
+            tile.ShowGameOverState();
+        }
+    }
+
+    public void CheckGameOver() {
+        // if numMines still left active => We're cool
+        int count = 0;
+        foreach (Tile tile in tiles) {
+            if (tile.active) {
+                count++;
+            }
+        }
+        if (count == numMines) {
+            // Flag and disable everything, we won
+            Debug.Log("You Survived! For now...");
+            foreach (Tile tile in tiles) {
+                tile.active = false;
+                tile.SetFlaggedIfMine();
+            }
+        }
+    }
 }

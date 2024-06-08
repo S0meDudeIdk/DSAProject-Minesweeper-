@@ -52,6 +52,7 @@ public class Tile : MonoBehaviour {
             if (isMine) {
                 // "You are ded. Not big surprise :3" - Heavy from TF2
                 spriteRenderer.sprite = mineHitTile;
+                gameManager.GameOver();
             } else {
                 // Safe click, set the correct sprite
                 spriteRenderer.sprite = clickedTile[mineCount];
@@ -59,7 +60,32 @@ public class Tile : MonoBehaviour {
                     // Register that the click should expand out to the neighbours.
                     gameManager.ClickNeighbours(this);
                 }
+                // Checking for Game Over state whenever we make a change in board
+                gameManager.CheckGameOver();
             }
+        }
+    }
+
+    // If the mine tile clicked -> Game over
+    public void ShowGameOverState() {
+        if (active) {
+            active = false;
+            if (isMine & !flagged) {
+                // The not-flagged mine tiles will be shown
+                spriteRenderer.sprite = mineTile;
+            } else if (flagged & !isMine) {
+                /* The incorrectly flagged mine tiles 
+                    will be shown as crossthrough mine tile */
+                spriteRenderer.sprite = mineWrongTile;
+            }
+        }  
+    }
+
+    // Method to flag the rest of the remaining mine on game completion
+    public void SetFlaggedIfMine() {
+        if (isMine) {
+            flagged = true;
+            spriteRenderer.sprite = flaggedTile;
         }
     }
 }
