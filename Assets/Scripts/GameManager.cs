@@ -141,4 +141,19 @@ public class GameManager : MonoBehaviour {
             }
         }
     }
+
+    public void Chording(Tile tile) {
+        int location = tiles.IndexOf(tile);
+        // Get the number of flags
+        int flagCount = 0;
+        foreach (int pos in GetNeighbors(location)) {
+            if (tiles[pos].flagged) {
+                flagCount++;
+            }
+        }
+        // If we have the right number -> Click surrounding tiles.
+        if (flagCount == tile.mineCount) {
+            ClickNeighbours(tile);
+        }
+    }
 }
