@@ -55,6 +55,7 @@ public class Tile : MonoBehaviour {
         if (active & !flagged) {
             // Makes sure that left click cannot click again
             active = false;
+            gameManager.SetFirstClickedTile(this);
             if (isMine) {
                 // "You are ded. Not big surprise :3" - Heavy from TF2
                 spriteRenderer.sprite = mineHitTile;

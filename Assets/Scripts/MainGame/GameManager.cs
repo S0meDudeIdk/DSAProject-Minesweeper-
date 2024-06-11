@@ -15,12 +15,13 @@ public class GameManager : MonoBehaviour {
 
     private readonly float tileSize = 0.5f;
 
+    private Tile firstClickedTile = null;
+
     // Start is called before the first frame update
     void Start() {
-        CreateGameBoard(9, 9, 10);                  // Beginner
-        // CreateGameBoard (16, 16, 40);            // Intermidiate
+        // CreateGameBoard(9, 9, 10);                  // Beginner
+        CreateGameBoard (16, 16, 40);            // Intermidiate
         // CreateGameBoard (30, 16, 99);            // Expert
-        ResetGameState();
     }
 
     public void CreateGameBoard(int width, int height, int numMines) {
@@ -49,9 +50,17 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public void SetFirstClickedTile(Tile tile) {
+        if (firstClickedTile == null) {
+            firstClickedTile = tile;
+            ResetGameState();
+        }
+    }
+
     private void ResetGameState() {
         // Suffle tiles' position for the mine
         int[] minePositions = Enumerable.Range(0, tiles.Count)
+                                        .Where(i => tiles[i] != firstClickedTile)
                                         .OrderBy(x => Random.Range(0.0f, 1.0f))
                                         .ToArray();
 
