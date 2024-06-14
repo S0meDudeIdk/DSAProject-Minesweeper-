@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour {
     [SerializeField] private Transform tilePrefab;
     [SerializeField] private Transform gameHolder;
+    [SerializeField] private Timer timer;
 
     private List<Tile> tiles = new();
 
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour {
         if (firstClickedTile == null) {
             firstClickedTile = tile;
             ResetGameState();
+            timer.StartTimer();
         }
     }
 
@@ -131,6 +133,7 @@ public class GameManager : MonoBehaviour {
         foreach (Tile tile in tiles) {
             tile.ShowGameOverState();
         }
+        timer.StopTimer();
     }
 
     public void CheckGameOver() {
@@ -148,6 +151,7 @@ public class GameManager : MonoBehaviour {
                 tile.active = false;
                 tile.SetFlaggedIfMine();
             }
+            timer.StopTimer();
         }
     }
 
