@@ -16,15 +16,15 @@ public class GameManager : MonoBehaviour {
     private int numMines;
     private int flaggedTiles = 0;
 
-    private readonly float tileSize = 0.5f;
+    private readonly float tileSize = 0.25f;
 
     private Tile firstClickedTile = null;
 
     // Start is called before the first frame update
     void Start() {
         // CreateGameBoard(9, 9, 10);                  // Beginner
-        CreateGameBoard (16, 16, 40);            // Intermidiate
-        // CreateGameBoard (30, 16, 99);            // Expert
+        // CreateGameBoard (16, 16, 40);            // Intermidiate
+        CreateGameBoard (30, 24, 99);            // Expert
     }
 
     public void CreateGameBoard(int width, int height, int numMines) {
