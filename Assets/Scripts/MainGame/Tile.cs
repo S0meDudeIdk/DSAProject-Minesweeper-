@@ -40,6 +40,7 @@ public class Tile : MonoBehaviour {
                 } else {
                     spriteRenderer.sprite = unclickedTile;
                 }
+                gameManager.UpdateFlagCount(flagged ? 1 : -1);
             }
         } else {
             // Pressing Left Mouse + Right Mouse (or Middle Mouse)

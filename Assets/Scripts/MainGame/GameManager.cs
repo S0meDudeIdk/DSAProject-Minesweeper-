@@ -7,12 +7,14 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Transform tilePrefab;
     [SerializeField] private Transform gameHolder;
     [SerializeField] private Timer timer;
+    [SerializeField] private MineCount mineCountDisplay;
 
     private List<Tile> tiles = new();
 
     private int width;
     private int height;
     private int numMines;
+    private int flaggedTiles = 0;
 
     private readonly float tileSize = 0.5f;
 
@@ -30,6 +32,7 @@ public class GameManager : MonoBehaviour {
         this.width = width;
         this.height = height;
         this.numMines = numMines;
+        mineCountDisplay.SetMineCount(numMines - flaggedTiles);
 
         // Create a Board with tiles
         for (int row = 0; row < height; row++) {
@@ -168,5 +171,10 @@ public class GameManager : MonoBehaviour {
         if (flagCount == tile.mineCount) {
             ClickNeighbours(tile);
         }
+    }
+
+    public void UpdateFlagCount(int delta) {
+        flaggedTiles += delta;
+        mineCountDisplay.UpdateMineCount(-delta);
     }
 }
