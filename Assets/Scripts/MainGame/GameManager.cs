@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Transform gameHolder;
     [SerializeField] private Timer timer;
     [SerializeField] private MineCount mineCountDisplay;
+    [SerializeField] private SmileButton smileButton;
 
     private List<Tile> tiles = new();
 
@@ -22,9 +23,11 @@ public class GameManager : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        // CreateGameBoard(9, 9, 10);                  // Beginner
+        CreateGameBoard(9, 9, 10);               // Beginner
         // CreateGameBoard (16, 16, 40);            // Intermidiate
-        CreateGameBoard (30, 24, 99);            // Expert
+        // CreateGameBoard (30, 16, 99);            // Expert
+        // CreateGameBoard (30, 24, 667);           // Bro...
+        // CreateGameBoard(30, 30, 500);
     }
 
     public void CreateGameBoard(int width, int height, int numMines) {
@@ -33,6 +36,7 @@ public class GameManager : MonoBehaviour {
         this.height = height;
         this.numMines = numMines;
         mineCountDisplay.SetMineCount(numMines - flaggedTiles);
+        smileButton.SetSmileyDefault();
 
         // Create a Board with tiles
         for (int row = 0; row < height; row++) {
@@ -59,6 +63,7 @@ public class GameManager : MonoBehaviour {
             firstClickedTile = tile;
             ResetGameState();
             timer.StartTimer();
+            smileButton.SetSmileyOpen();
         }
     }
 
@@ -137,6 +142,7 @@ public class GameManager : MonoBehaviour {
             tile.ShowGameOverState();
         }
         timer.StopTimer();
+        smileButton.SetSmileyDead();
     }
 
     public void CheckGameOver() {
@@ -155,6 +161,7 @@ public class GameManager : MonoBehaviour {
                 tile.SetFlaggedIfMine();
             }
             timer.StopTimer();
+            smileButton.SetSmileyCool();
         }
     }
 
@@ -176,5 +183,25 @@ public class GameManager : MonoBehaviour {
     public void UpdateFlagCount(int delta) {
         flaggedTiles += delta;
         mineCountDisplay.UpdateMineCount(-delta);
+    }
+
+    public void ResetGame() {
+        // Destroy all existing tiles
+        foreach (Transform child in gameHolder) {
+            Destroy(child.gameObject);
+        }
+
+        // Clear the tile list and reset variables
+        tiles.Clear();
+        firstClickedTile = null;
+        flaggedTiles = 0;
+        timer.ResetTimer();
+
+        // Create a new game board
+        CreateGameBoard(width, height, numMines);
+    }
+
+    public void NotifyTileClickComplete() {
+        smileButton.SetSmileyDefault(); // Change smiley to default state after clicking a tile
     }
 }

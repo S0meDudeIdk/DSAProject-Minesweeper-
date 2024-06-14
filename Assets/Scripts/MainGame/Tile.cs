@@ -71,6 +71,7 @@ public class Tile : MonoBehaviour {
                 // Checking for Game Over state whenever we make a change in board
                 gameManager.CheckGameOver();
             }
+            gameManager.NotifyTileClickComplete(); // Notify the game manager after clicking a tile
         }
     }
 

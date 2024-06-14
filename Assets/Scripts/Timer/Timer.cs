@@ -29,6 +29,7 @@ public class Timer : MonoBehaviour {
     }
 
     public void ResetTimer() {
+        isRunning = false;
         elapsedTime = 0f;
         timerText.text = "00:00.00";
     }
