@@ -4,13 +4,15 @@ using System.Linq;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
+    public enum GameState { Playing, GameOver, GameWon }
     [SerializeField] private Transform tilePrefab;
     [SerializeField] private Transform gameHolder;
     [SerializeField] private Timer timer;
     [SerializeField] private MineCount mineCountDisplay;
-    [SerializeField] private SmileButton smileButton;
+    [SerializeField] public SmileButton smileButton; // Add reference to SmileButton
 
     private List<Tile> tiles = new();
+    public GameState gameState = GameState.Playing;
 
     private int width;
     private int height;
@@ -32,11 +34,14 @@ public class GameManager : MonoBehaviour {
 
     public void CreateGameBoard(int width, int height, int numMines) {
         // Save the game parameters
+        Debug.Log("Creating game board...");
         this.width = width;
         this.height = height;
         this.numMines = numMines;
         mineCountDisplay.SetMineCount(numMines - flaggedTiles);
-        smileButton.SetSmileyDefault();
+        smileButton.SetSmileyDefault(); // Set smiley to default state
+        gameState = GameState.Playing; // Set game state to playing
+
 
         // Create a Board with tiles
         for (int row = 0; row < height; row++) {
@@ -63,7 +68,6 @@ public class GameManager : MonoBehaviour {
             firstClickedTile = tile;
             ResetGameState();
             timer.StartTimer();
-            smileButton.SetSmileyOpen();
         }
     }
 
@@ -137,12 +141,13 @@ public class GameManager : MonoBehaviour {
     }
 
     public void GameOver() {
+        gameState = GameState.GameOver;
         // Disable clicks
         foreach (Tile tile in tiles) {
             tile.ShowGameOverState();
         }
         timer.StopTimer();
-        smileButton.SetSmileyDead();
+        smileButton.SetSmileyDead(); // Change smiley to dead state
     }
 
     public void CheckGameOver() {
@@ -161,7 +166,9 @@ public class GameManager : MonoBehaviour {
                 tile.SetFlaggedIfMine();
             }
             timer.StopTimer();
-            smileButton.SetSmileyCool();
+            mineCountDisplay.SetMineCount(0);
+            smileButton.SetSmileyCool(); // Change smiley to cool state
+            gameState = GameState.GameWon;
         }
     }
 
@@ -196,12 +203,10 @@ public class GameManager : MonoBehaviour {
         firstClickedTile = null;
         flaggedTiles = 0;
         timer.ResetTimer();
+        smileButton.SetSmileyDefault(); // Reset smiley to default state
+        gameState = GameState.Playing; // Reset game state to playing
 
         // Create a new game board
         CreateGameBoard(width, height, numMines);
-    }
-
-    public void NotifyTileClickComplete() {
-        smileButton.SetSmileyDefault(); // Change smiley to default state after clicking a tile
     }
 }

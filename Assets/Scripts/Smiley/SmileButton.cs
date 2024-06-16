@@ -42,3 +42,4 @@ public class SmileButton : MonoBehaviour {
         FindObjectOfType<GameManager>().ResetGame();
     }
 }
+

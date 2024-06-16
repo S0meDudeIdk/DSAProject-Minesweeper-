@@ -27,6 +27,8 @@ public class Tile : MonoBehaviour {
     }
 
     private void OnMouseOver() {
+        if (gameManager.gameState != GameManager.GameState.Playing) return;
+
         // If it hasn't already been pressed
         if (active) {
             if (Input.GetMouseButtonDown(0)) {
@@ -51,6 +53,12 @@ public class Tile : MonoBehaviour {
         }
     }
 
+    private void OnMouseUp() {
+        if (gameManager.gameState == GameManager.GameState.Playing) {
+            gameManager.smileButton.SetSmileyDefault(); // Change smiley to default state on mouse release
+        }
+    }
+
     public void ClickedTile() {
         // Flagged => Not allow left click
         if (active & !flagged) {
@@ -71,7 +79,6 @@ public class Tile : MonoBehaviour {
                 // Checking for Game Over state whenever we make a change in board
                 gameManager.CheckGameOver();
             }
-            gameManager.NotifyTileClickComplete(); // Notify the game manager after clicking a tile
         }
     }
 
