@@ -14,10 +14,10 @@ public class GameManager : MonoBehaviour {
     private List<Tile> tiles = new();
     public GameState gameState = GameState.Playing;
 
-    private int width;
-    private int height;
-    private int numMines;
-    private int flaggedTiles = 0;
+    public int width;
+    public int height;
+    public int numMines;
+    public int flaggedTiles = 0;
 
     private readonly float tileSize = 0.25f;
 
@@ -25,11 +25,7 @@ public class GameManager : MonoBehaviour {
 
     // Start is called before the first frame update
     void Start() {
-        CreateGameBoard(9, 9, 10);               // Beginner
-        // CreateGameBoard (16, 16, 40);            // Intermidiate
-        // CreateGameBoard (30, 16, 99);            // Expert
-        // CreateGameBoard (30, 24, 667);           // Bro...
-        // CreateGameBoard(30, 30, 500);
+        CreateGameBoard(9, 9, 10);                  
     }
 
     public void CreateGameBoard(int width, int height, int numMines) {

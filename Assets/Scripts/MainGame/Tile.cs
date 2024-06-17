@@ -29,6 +29,10 @@ public class Tile : MonoBehaviour {
     private void OnMouseOver() {
         if (gameManager.gameState != GameManager.GameState.Playing) return;
 
+        if (SettingsManager.IsSettingsUIActive) {
+            return;
+        }
+
         // If it hasn't already been pressed
         if (active) {
             if (Input.GetMouseButtonDown(0)) {
