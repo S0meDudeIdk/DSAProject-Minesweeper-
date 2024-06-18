@@ -27,15 +27,21 @@ public class SettingsManager : MonoBehaviour {
     public static bool IsSettingsUIActive { get; private set; } = false;
 
     void Start() {
+        InitializeSettingsUI();
+        gameManager = FindObjectOfType<GameManager>();
+        defaultButtonColor = beginnerButton.GetComponent<Image>().color;
+
+        AddButtonListeners();
+    }
+
+    private void InitializeSettingsUI() {
         if (settingsUI != null) {
             settingsUI.SetActive(false);
             IsSettingsUIActive = false;
         }
+    }
 
-        gameManager = FindObjectOfType<GameManager>();
-        
-        defaultButtonColor = beginnerButton.GetComponent<Image>().color;
-
+    private void AddButtonListeners() {
         beginnerButton.onClick.AddListener(() => SelectDifficulty(beginnerButton, 9, 9, 10));
         intermediateButton.onClick.AddListener(() => SelectDifficulty(intermediateButton, 16, 16, 40));
         expertButton.onClick.AddListener(() => SelectDifficulty(expertButton, 30, 16, 99));
@@ -53,28 +59,47 @@ public class SettingsManager : MonoBehaviour {
     }
 
     private void SelectDifficulty(Button button, int width, int height, int mines) {
+        DeselectPreviousButton();
+        HighlightSelectedButton(button);
+
+        SetInputFields(width, height, mines);
+    }
+
+    private void DeselectPreviousButton() {
         if (selectedButton != null) {
             selectedButton.GetComponent<Image>().color = defaultButtonColor;
         }
+    }
+
+    private void HighlightSelectedButton(Button button) {
         button.GetComponent<Image>().color = Color.gray;
         selectedButton = button;
+    }
 
+    private void SetInputFields(int width, int height, int mines) {
         widthInput.text = width.ToString();
         heightInput.text = height.ToString();
         mineInput.text = mines.ToString();
     }
 
     private void ApplySettings() {
-        int width = Mathf.Clamp(int.Parse(widthInput.text), minWidth, maxWidth);
-        int height = Mathf.Clamp(int.Parse(heightInput.text), minHeight, maxHeight);
+        int width = ParseInput(widthInput.text, minWidth, maxWidth);
+        int height = ParseInput(heightInput.text, minHeight, maxHeight);
         int maxMines = (width - 1) * (height - 1);
-        int mines = Mathf.Clamp(int.Parse(mineInput.text), minMines, maxMines);
+        int mines = ParseInput(mineInput.text, minMines, maxMines);
 
         gameManager.width = width;
         gameManager.height = height;
         gameManager.numMines = mines;
         gameManager.ResetGame();
         ToggleSettings();
+    }
+
+    private int ParseInput(string input, int minValue, int maxValue) {
+        if (int.TryParse(input, out int value)) {
+            return Mathf.Clamp(value, minValue, maxValue);
+        }
+        return minValue;
     }
 
     private void CancelSettings() {

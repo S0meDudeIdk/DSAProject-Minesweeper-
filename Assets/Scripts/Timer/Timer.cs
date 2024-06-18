@@ -1,22 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
 public class Timer : MonoBehaviour {
-    [SerializeField] TextMeshProUGUI timerText;
-    float elapsedTime;
+    [SerializeField] private TextMeshProUGUI timerText;
+    private float elapsedTime;
     private bool isRunning = false;
 
     void Update() {
         if (isRunning) {
-            elapsedTime += Time.deltaTime;
-            int minutes = Mathf.FloorToInt(elapsedTime / 60);
-            int seconds = Mathf.FloorToInt(elapsedTime % 60);
-            float fraction = (elapsedTime * 100) % 100;
-            timerText.text = string.Format("{0:00}:{1:00}.{2:00}", 
-                                            minutes, seconds, fraction);
+            UpdateTimer();
         }
+    }
+
+    public float GetElapsedTime() {
+        return elapsedTime;
+    }
+
+    private void UpdateTimer() {
+        elapsedTime += Time.deltaTime;
+        int minutes = Mathf.FloorToInt(elapsedTime / 60);
+        int seconds = Mathf.FloorToInt(elapsedTime % 60);
+        int fraction = Mathf.FloorToInt((elapsedTime * 100) % 100);
+        timerText.text = $"{minutes:00}:{seconds:00}.{fraction:00}";
     }
 
     public void StartTimer() {

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,9 +8,9 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private Transform gameHolder;
     [SerializeField] private Timer timer;
     [SerializeField] private MineCount mineCountDisplay;
-    [SerializeField] public SmileButton smileButton; // Add reference to SmileButton
+    [SerializeField] public SmileButton smileButton;
 
-    private List<Tile> tiles = new();
+    private List<Tile> tiles = new List<Tile>();
     public GameState gameState = GameState.Playing;
 
     public int width;
@@ -19,39 +18,32 @@ public class GameManager : MonoBehaviour {
     public int numMines;
     public int flaggedTiles = 0;
 
-    private readonly float tileSize = 0.25f;
-
+    private const float tileSize = 0.25f;
     private Tile firstClickedTile = null;
 
-    // Start is called before the first frame update
     void Start() {
         CreateGameBoard(9, 9, 10);                  
     }
 
     public void CreateGameBoard(int width, int height, int numMines) {
-        // Save the game parameters
-        Debug.Log("Creating game board...");
         this.width = width;
         this.height = height;
         this.numMines = numMines;
-        mineCountDisplay.SetMineCount(numMines - flaggedTiles);
-        smileButton.SetSmileyDefault(); // Set smiley to default state
-        gameState = GameState.Playing; // Set game state to playing
+        mineCountDisplay.SetMineCount(numMines);
+        smileButton.SetSmileyDefault();
+        gameState = GameState.Playing;
 
+        CreateTiles();
+    }
 
-        // Create a Board with tiles
+    private void CreateTiles() {
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                // Position the tile in the center
-                Transform tileTransform = Instantiate(tilePrefab);
-                tileTransform.parent = gameHolder;
+                Transform tileTransform = Instantiate(tilePrefab, gameHolder);
+                float xIndex = col - (width - 1) / 2.0f;
+                float yIndex = row - (height - 1) / 2.0f;
+                tileTransform.localPosition = new Vector2(xIndex * tileSize, yIndex * tileSize);
 
-                float xIndex = col - ((width - 1) / 2.0f);
-                float yIndex = row - ((height - 1) / 2.0f);
-                tileTransform.localPosition = new Vector2(xIndex * tileSize,
-                                                            yIndex * tileSize);
-
-                // Keep referencing to the tile for setting up the game
                 Tile tile = tileTransform.GetComponent<Tile>();
                 tiles.Add(tile);
                 tile.gameManager = this;
@@ -68,117 +60,79 @@ public class GameManager : MonoBehaviour {
     }
 
     private void ResetGameState() {
-        // Suffle tiles' position for the mine
         int[] minePositions = Enumerable.Range(0, tiles.Count)
                                         .Where(i => tiles[i] != firstClickedTile)
-                                        .OrderBy(x => Random.Range(0.0f, 1.0f))
+                                        .OrderBy(x => Random.value)
+                                        .Take(numMines)
                                         .ToArray();
 
-        // Set mines at the first numMines positions
-        for (int i = 0; i < numMines; i++) {
-            int pos = minePositions[i];
+        foreach (int pos in minePositions) {
             tiles[pos].isMine = true;
         }
 
-        // Update all the tiles to hold the correct number of mines
-        for (int i = 0; i < tiles.Count; i++) {
-            tiles[i].mineCount = HowManyMines(i);
+        foreach (Tile tile in tiles) {
+            tile.mineCount = GetMineCount(tile);
         }
     }
 
-    private int HowManyMines(int location) {
-        int count = 0;
-        foreach (int pos in GetNeighbors(location)) {
-            if (tiles[pos].isMine) {
-                count++;
-            }
-        }
-        return count;
+    private int GetMineCount(Tile tile) {
+        return GetNeighbors(tile).Count(neighbor => neighbor.isMine);
     }
 
-    // Given a position, return the positions of all neighbors
-    private List<int> GetNeighbors(int pos) {
-        List<int> neighbors = new();
-        int row = pos / width;
-        int col = pos % width;
-        // First position (0,0) is bottom left
-        if (row < (height - 1)) {
-            neighbors.Add(pos + width);             // North
-            if (col > 0) {
-                neighbors.Add(pos + width - 1);     // North West
-            }
-            if (col < (width - 1)) {
-                neighbors.Add(pos + width + 1);     // North East
+    private List<Tile> GetNeighbors(Tile tile) {
+        int index = tiles.IndexOf(tile);
+        int row = index / width;
+        int col = index % width;
+        List<Tile> neighbors = new List<Tile>();
+
+        void AddNeighbor(int r, int c) {
+            if (r >= 0 && r < height && c >= 0 && c < width) {
+                neighbors.Add(tiles[r * width + c]);
             }
         }
-        if (col > 0) {
-            neighbors.Add(pos - 1); // West
-        }
-        if (col < (width - 1)) {
-            neighbors.Add(pos + 1); // East
-        }
-        if (row > 0) {
-            neighbors.Add(pos - width); // South
-            if (col > 0) {
-                neighbors.Add(pos - width - 1); // South-West
-            }
-            if (col < (width - 1)) {
-                neighbors.Add(pos - width + 1); // South-East
-            }
-        }
+
+        AddNeighbor(row - 1, col);
+        AddNeighbor(row + 1, col);
+        AddNeighbor(row, col - 1);
+        AddNeighbor(row, col + 1);
+        AddNeighbor(row - 1, col - 1);
+        AddNeighbor(row - 1, col + 1);
+        AddNeighbor(row + 1, col - 1);
+        AddNeighbor(row + 1, col + 1);
+
         return neighbors;
     }
 
     public void ClickNeighbours(Tile tile) {
-        int location = tiles.IndexOf(tile);
-        foreach (int pos in GetNeighbors(location)) {
-            tiles[pos].ClickedTile();
+        foreach (Tile neighbor in GetNeighbors(tile)) {
+            neighbor.ClickedTile();
         }
     }
 
     public void GameOver() {
         gameState = GameState.GameOver;
-        // Disable clicks
         foreach (Tile tile in tiles) {
             tile.ShowGameOverState();
         }
         timer.StopTimer();
-        smileButton.SetSmileyDead(); // Change smiley to dead state
+        smileButton.SetSmileyDead();
     }
 
     public void CheckGameOver() {
-        // if numMines still left active => We're cool
-        int count = 0;
-        foreach (Tile tile in tiles) {
-            if (tile.active) {
-                count++;
-            }
-        }
-        if (count == numMines) {
-            // Flag and disable everything, we won
-            Debug.Log("You Survived! For now...");
+        if (tiles.Count(t => t.active) == numMines) {
             foreach (Tile tile in tiles) {
-                tile.active = false;
                 tile.SetFlaggedIfMine();
+                tile.active = false;
             }
             timer.StopTimer();
             mineCountDisplay.SetMineCount(0);
-            smileButton.SetSmileyCool(); // Change smiley to cool state
+            smileButton.SetSmileyCool();
             gameState = GameState.GameWon;
         }
     }
 
     public void Chording(Tile tile) {
-        int location = tiles.IndexOf(tile);
-        // Get the number of flags
-        int flagCount = 0;
-        foreach (int pos in GetNeighbors(location)) {
-            if (tiles[pos].flagged) {
-                flagCount++;
-            }
-        }
-        // If we have the right number -> Click surrounding tiles.
-        if (flagCount == tile.mineCount) {
+        if (GetNeighbors(tile).Count(neighbor => neighbor.flagged) == tile.mineCount) {
             ClickNeighbours(tile);
         }
     }
@@ -189,20 +143,17 @@ public class GameManager : MonoBehaviour {
     }
 
     public void ResetGame() {
-        // Destroy all existing tiles
         foreach (Transform child in gameHolder) {
             Destroy(child.gameObject);
         }
 
-        // Clear the tile list and reset variables
         tiles.Clear();
         firstClickedTile = null;
         flaggedTiles = 0;
         timer.ResetTimer();
-        smileButton.SetSmileyDefault(); // Reset smiley to default state
-        gameState = GameState.Playing; // Reset game state to playing
+        smileButton.SetSmileyDefault();
+        gameState = GameState.Playing;
 
-        // Create a new game board
         CreateGameBoard(width, height, numMines);
     }
 }
