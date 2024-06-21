@@ -1,3 +1,9 @@
+/*  Name: Pham Vu Hoang Bao
+    ID: ITCSIU22250
+    Purpose: Manages the Minesweeper game, 
+            including game state, tile creation, and game logic.
+*/
+
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -79,7 +85,7 @@ public class GameManager : MonoBehaviour {
         return GetNeighbors(tile).Count(neighbor => neighbor.isMine);
     }
 
-    private List<Tile> GetNeighbors(Tile tile) {
+    public List<Tile> GetNeighbors(Tile tile) {
         int index = tiles.IndexOf(tile);
         int row = index / width;
         int col = index % width;

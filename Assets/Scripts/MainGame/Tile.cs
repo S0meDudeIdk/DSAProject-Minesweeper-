@@ -1,3 +1,9 @@
+/*  Name: Pham Vu Hoang Bao
+    ID: ITCSIU22250
+    Purpose: Manages the behavior of individual tiles in the Minesweeper game, 
+            including handling clicks, flags, and displaying the correct state.
+*/
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -72,9 +78,29 @@ public class Tile : MonoBehaviour {
             } else {
                 spriteRenderer.sprite = clickedTile[mineCount];
                 if (mineCount == 0) {
-                    gameManager.ClickNeighbours(this);
+                    RevealAdjacentEmptyCells();
                 }
                 gameManager.CheckGameOver();
+            }
+        }
+    }
+
+    // Applying Depth First Search
+    private void RevealAdjacentEmptyCells() {
+        Stack<Tile> stack = new Stack<Tile>();
+        stack.Push(this);
+
+        while (stack.Count > 0) {
+            Tile current = stack.Pop();
+            current.ClickedTile();
+
+            if (current.mineCount == 0) {
+                foreach (Tile neighbor in gameManager.GetNeighbors(current)) {
+                    if (neighbor.active && !neighbor.flagged 
+                                        && !neighbor.isMine) {
+                        stack.Push(neighbor);
+                    }
+                }
             }
         }
     }

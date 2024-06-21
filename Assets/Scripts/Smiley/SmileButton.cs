@@ -1,5 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+/*  Name: Pham Vu Hoang Bao
+    ID: ITCSIU22250
+    Purpose: Manages the smiley button functionality in the Minesweeper game, 
+            including changing the smiley face sprite and resetting the game.
+*/
 using UnityEngine;
 using UnityEngine.UI;
 

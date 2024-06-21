@@ -1,3 +1,9 @@
+/*  Name: Pham Vu Hoang Bao
+    ID: ITCSIU22250
+    Purpose: Manages the settings UI for the Minesweeper game, 
+            including difficulty selection and custom game settings.
+*/
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;

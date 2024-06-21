@@ -1,3 +1,9 @@
+/*  Name: Pham Vu Hoang Bao
+    ID: ITCSIU22250
+    Purpose: Manages the game timer for the Minesweeper game, 
+            including starting, stopping, and resetting the timer.
+*/
+
 using UnityEngine;
 using TMPro;
 
